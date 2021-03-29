@@ -1,3 +1,6 @@
+npx sequelize shows all sequelize commands
+
+
 -- Phase 1 - Getting Started
 -- [x] npm install
 -- [x] npm run dev
@@ -9,9 +12,7 @@
 CREATE USER sequelizerecipe_box_app
 with PASSWORD 'HfKfK79k';
 -- CREATE ROLE
-CREATE DATABASE sequelizerecipe_box
-WITH OWNER sequelizerecipe_box_app;
--- CREATE DATABASE
+
 
 -- Phase 2b Change Connection configuration
 -- [x] Change all the "user" and "password" values to the information for the user that you created in Phase 2.
@@ -22,29 +23,31 @@ WITH OWNER sequelizerecipe_box_app;
 
 
 -- Phase 3 Create Database
--- [x] npx sequelize - cli db :create
-
+npx sequelize db :create -- ^ creates database from config file
 -- Sequelize CLI [Node: 14.5.0, CLI: 5.5.1, ORM: 5.21.5]
 -- Loaded configuration file "config/config.json".
 -- Using environment "development".
 
 
+
 -- Phase 4: The units of measurement data
 -- create table Measurement Units
-CREATE TABLE measurementUnits(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(20) NOT NULL
-);
--- CREATE TABLE
+
+
 -- create two files
-npx sequelize-cli model:generate \
- --name 'MeasurementUnit' \
- --attributes 'name':string
+npx sequelize model:generate
+ --name 'MeasurementUnit'
+ --attributes 'name:string'
 -- create Model
 -- create migration
+Sequelize CLI [Node: 14.5.0, CLI: 5.5.1, ORM: 5.21.5]
+
+New model was created at /Users/alexandrabouillon/Dropbox/My Mac (Alexandras-MacBook-Pro.local)/Desktop/sql-orm-recipe-box-master/models/measurementunit.js .
+New migration was created at /Users/alexandrabouillon/Dropbox/My Mac (Alexandras-MacBook-Pro.local)/Desktop/sql-orm-recipe-box-master/migrations/20210329131604-MeasurementUnit.js .
+
 -- "name" property, make non-nullable
 --  add the "unique" property set to true
 -- run migration
-npx sequelize-cli db:migrate
 
--- psql -W -U sequelizerecipe_box_app sequelizerecipe_box
+
+npx sequelize db:migrate
