@@ -1,0 +1,60 @@
+-[x] // Sign up
+router.post(
+  '/',
+  validateSignup,
+  asyncHandler(async (req, res) => {
+    const { email, password, userName } = req.body;
+    const user = await User.signup({ firstName,lastName, email, userName, password });
+
+    await setTokenCookie(res, user);
+
+    return res.json({
+      user,
+    });
+  }),
+);
+
+-[x] ('Users', [
+      {
+        firstName:'Demo-firstName',
+        lastName:'Demo-lastName',
+        email: 'demo@user.io',
+        userName: 'Demo-lition',
+        hashedPassword: bcrypt.hashSync('password'),
+      },
+      {
+        firstName:'Fake-firstName1',
+        lastName:'Fake-lastName1',
+        email: faker.internet.email(),
+        userName: 'FakeUser1',
+        hashedPassword: bcrypt.hashSync(faker.internet.password()),
+      },
+      {
+        firstName:'Fake-firstName2',
+        lastName:'Fake-lastName2',
+        email: faker.internet.email(),
+        userName: 'FakeUser2',
+        hashedPassword: bcrypt.hashSync(faker.internet.password()),
+      },
+    ]
+
+-[x]
+    const [firstName,setUserFirstName] = useState("");
+    const [lastName, setUserLastName] = useState("");
+setCredential
+
+-[] stroe/session.js
+export const signup = (user) => async (dispatch) => {
+  const { userName, email, password } = user;
+  const response = await csrfFetch("/api/users", {
+    method: "POST",
+    body: JSON.stringify({
+      userName,
+      email,
+      password,
+    }),
+  });
+  const data = await response.json();
+  dispatch(setUser(data.user));
+  return response;
+};

@@ -1,0 +1,732 @@
+## Phase 0:
+
+-[2] Create a .gitignore file at the root of the project with the following contents:
+```
+node_modules
+.env
+build
+.DS_Store
+
+```
+-[2]  initialize the server AuthenticateMe/BackEnd/package.json
+    npm init -y
+-[2] npm install
+-[2] npm install bcryptjs
+-[2] npm install cookie-parser@^1.0.0
+-[2] npm install cors
+-[2] npm install csurf@^1.0.0
+-[2] npm install express@^4.0.0
+-[2] npm install express-async-handler --save
+-[2] npm install express-validator@^6.0.0
+-[2] npm install faker
+-[2] npm install helmet --save
+-[2] npm install jsonwebtoken
+-[2] npm install morgan
+-[2] npm install per-env
+-[2] npm install pg@">=8.4.1"
+-[2] npm install sequelize-cli@^5.0.0 --save-dev
+-[2] npm install sequelize@5
+-[2] npm install dotenv dotenv-cli --save-dev
+-[2] npm install nodemon@^2.0.0 --save-dev
+-[] npm install --save react-horizontal-scrolling-menu
+-[x] npm install express-session
+-[x] npm install aws-sdk
+-[x] npm install --save multer
+
+
+
+## Configuration In the backend folder
+-[2] create a .env file that will be used to define your environment variables.
+```
+PORT=5000
+DB_USERNAME=project_instruction_react_app
+DB_PASSWORD=1StrongPassword!
+DB_DATABASE=project_instruction_db
+DB_HOST=localhost
+JWT_SECRET='38b463057b634a23c4048ca1e03be40e7cdb1a322164b1415768ac23ca4da6fb'
+JWT_EXPIRES_IN=604800
+AWS_ACCESS_KEY_ID=AKIAWB5ZWA7VMQLDW4OB
+AWS_SECRET_ACCESS_KEY=9li9VEkqcoG388V7yvcBAvAQnTCRFeggz4a2ynB
+
+```
+-[2]  create a random string using openssl (a library that should be installed in your Ubuntu/MacOS shell already).
+    Run openssl rand -base64 10 to generate a random JWT secret.
+    -[x] in terminal type:
+    `node`
+    `require("crypto").randomBytes(32).toString("hex");`
+
+-[2] create a js configuration file that will read the environment variables loaded and export them
+``` backend/config/index.js
+module.exports = {
+  environment: process.env.NODE_ENV || 'development',
+  port: process.env.PORT || 5000,
+  db: {
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    host: process.env.DB_HOST,
+  },
+  jwtConfig: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  },
+};
+```
+## Sequelize Setup
+
+-[2] touch BackEnd/.sequelizerc
+```backend/.sequelizerc
+const path = require('path');
+
+module.exports = {
+  config: path.resolve('config', 'database.js'),
+  'models-path': path.resolve('db', 'models'),
+  'seeders-path': path.resolve('db', 'seeders'),
+  'migrations-path': path.resolve('db', 'migrations'),
+};
+```
+
+-[2] Initialize Sequelize to the db folder
+    npx sequelize init
+
+-[2] backend/config/database.js
+```
+const config = require('./index');
+
+const db = config.db;
+const username = db.username;
+const password = db.password;
+const database = db.database;
+const host = db.host;
+
+module.exports = {
+  development: {
+    username,
+    password,
+    database,
+    host,
+    dialect: 'postgres',
+    seederStorage: 'sequelize',
+  },
+  production: {
+    use_env_variable: 'DATABASE_URL',
+    dialect: 'postgres',
+    seederStorage: 'sequelize',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+  },
+};
+```
+-[2] psql -c CREATE USER project_instruction_react_app WITH PASSWORD '1StrongPassword!' CREATEDB;
+
+-[2] npx dotenv sequelize-cli db:create
+
+        npx dotenv sequelize-cli db:seed:undo:all
+        npx dotenv sequelize-cli db:migrate:undo:all
+        npx dotenv sequelize-cli db:drop react_solo_project
+        npx dotenv sequelize-cli db:migrate
+        npx dotenv sequelize-cli db:seed:all
+
+## Express Setup
+-[2] Create a file called app.js in the backend folder
+-[2] import the following packages:
+
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const csurf = require('csurf');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+
+-[2] in backend/config/index.js Create a variable called isProduction
+that will be true if the environment is in production or not by checking the environment key
+
+-[2] Initialize the Express application:
+```
+const app = express();
+```
+-[2] Add the cookie-parser middleware for parsing cookies
+-[2] and the express.json middleware for parsing JSON
+
+
+## Routes   "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+-[2] Create a folder called routes in your backend folder
+-[2] Create an index.js file in the routes folder
+-[2] create an Express router
+-[2] create a test route
+-[2] export the router at the bottom of the file.
+```backend/routes/index.js
+const express = require('express');
+const router = express.Router();
+
+router.get('/hello/world', function(req, res) {
+  res.cookie('XSRF-TOKEN', req.csrfToken());
+  res.send('Hello World!');
+});
+
+module.exports = router;
+```
+-[2] in backend/app.js Add the routes to the Express application by importing with the other imports
+```backend/app.js
+const routes = require('./routes');
+// ...after all the middlewares
+app.use(routes); // Connect all the routes after all the middlewares
+
+module.exports = app;
+```
+
+## creating the server
+-[2] Create a folder in backend called bin.
+-[2] add a file called www
+```
+#!/usr/bin/env node
+// backend/bin/www
+const { port } = require('../config');
+
+const app = require('../app');
+const db = require('../db/models');
+
+// Check the database connection before starting the app
+db.sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Database connection success! Sequelize is ready to use...');
+
+    // Start listening for connections
+    app.listen(port, () => console.log(`Listening on port ${port}...`));
+  })
+  .catch((err) => {
+    console.log('Database connection failure.');
+    console.error(err);
+  });
+  ```
+-[ 2] see 'Hello World!'  or follow errors
+  http://localhost:5000/hello/world
+
+
+-[x] // ./routes/utils.js
+```
+const csrf = require('csurf');
+
+const csrfProtection = csrf({ cookie: true });
+
+const asyncHandler = (handler) => (req, res, next) => handler(req, res, next).catch(next);
+
+module.exports = {
+  csrfProtection,
+  asyncHandler,
+};
+```
+
+
+## Phase 1 REST API server. : API Routes
+-[2] an api folder in your routes folder.
+-[2] Add an index.js file
+-[2] Import this file into the routes/index.js file
+-[2]  connect it to the router
+```// backend/routes/api/index.js
+const router = require('express').Router();
+
+module.exports = router;
+```
+-[2] Test this route by navigating to the other test route, http://localhost:5000/hello/world,
+-[2]  creating a fetch request               // AB ask Sri
+```Example fetch request: for DEV TOOLS CONSOLE
+
+fetch('/api/test', {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ hello: 'world' })
+}).then(res => res.json()).then(data => console.log(data));
+```
+## Phase 2: Error Handling
+
+-[2] Connect the following error handling middlewares after your route connections
+```
+// Process sequelize errors
+const { ValidationError } = require('sequelize');
+app.use((err, _req, _res, next) => {
+  // check if error is a Sequelize error:
+  if (err instanceof ValidationError) {
+    err.errors = err.errors.map((e) => e.message);
+    err.title = 'Validation error';
+  }
+  next(err);
+});
+
+
+// Error formatter
+app.use((err, _req, res, _next) => {
+  res.status(err.status || 500);
+  console.error(err);
+  res.json({
+    title: err.title || 'Server Error',
+    message: err.message,
+    errors: err.errors,
+    stack: isProduction ? null : err.stack,
+  });
+});
+```
+-[2]   test the Resource Not Found error handler and the Error Formatter error handler.
+  http://localhost:5000/not-found.
+
+
+## Phase 3: User Authentication
+-[2] create a Users table that will have the following schema:
+  npx sequelize model:generate --name User --attributes firstName:string,lastName:string,userName:string,email:string,hashedPassword:string
+-[2] apply the constraints in the schema
+```
+'use strict';
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.createTable('Users', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      username: {
+        type: Sequelize.STRING(30),
+        allowNull: false,
+        unique: true,
+      },
+      email: {
+        type: Sequelize.STRING(256),
+        allowNull: false,
+        unique: true,
+      },
+      hashedPassword: {
+        type: Sequelize.STRING.BINARY,
+        allowNull: false,
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now'),
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now'),
+      }
+    });
+  },
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.dropTable('Users');
+  }
+};
+```
+-[2] npx dotenv sequelize db:migrate
+-[] npx dotenv sequelize db:migrate:undo
+-[?] check out the Users table schema created in your PostgresQL
+  psql robinhood_clone -c \d robinhood_clone_app      ??
+  psql robinhood_clone '\d "Users"'                   ??
+
+##  User Model & Scopes - Protecting your Users' Information
+-[x] User model file, backend/db/models/user.js
+https://sequelize.org/master/manual/scopes.html
+-[x]  set a defaultScope on the User model to exclude the desired fields from the default query
+-[x] define a User model scope for currentUser that will exclude only the hashedPassword field.
+-[x] define another scope for including all the fields, which should only be used when checking the login credentials of a user.
+
+```
+'use strict';
+const { Validator } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [3, 30],
+        isNotEmail(value) {
+          if (Validator.isEmail(value)) {
+            throw new Error('Cannot be an email.');
+          }
+        },
+      },
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [3, 256]
+      },
+    },
+    hashedPassword: {
+      type: DataTypes.STRING.BINARY,
+      allowNull: false,
+      validate: {
+        len: [60, 60]
+      },
+    },
+  },
+  {
+    defaultScope: {
+      attributes: {
+        exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
+      },
+    },
+    scopes: {
+      currentUser: {
+        attributes: { exclude: ['hashedPassword'] },
+      },
+      loginUser: {
+        attributes: {},
+      },
+    },
+  });
+  User.associate = function(models) {
+    // associations can be defined here
+  };
+  return User;
+};
+```
+-[x] npx sequelize seed:generate --name demo-user
+
+-[x] generate the hashedPassword you should use the bcryptjs package's hashSync
+```
+'use strict';
+const faker = require('faker');
+const bcrypt = require('bcryptjs');
+
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.bulkInsert('Users', [
+      {
+        email: 'demo@user.io',
+        username: 'Demo-lition',
+        hashedPassword: bcrypt.hashSync('password'),
+      },
+      {
+        email: faker.internet.email(),
+        username: 'FakeUser1',
+        hashedPassword: bcrypt.hashSync(faker.internet.password()),
+      },
+      {
+        email: faker.internet.email(),
+        username: 'FakeUser2',
+        hashedPassword: bcrypt.hashSync(faker.internet.password()),
+      },
+    ], {});
+  },
+
+  down: (queryInterface, Sequelize) => {
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete('Users', {
+      username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }
+    }, {});
+  }
+};
+```
+-[x]npx dotenv sequelize db:seed:all
+  -[ifNeeded]npx dotenv sequelize db:seed:undo
+  -[] npx dotenv sequelize db:seed:undo:all
+  -[x] psql robinhood_clone -c 'SELECT * FROM "Users"'
+
+
+##  Authentication Flow
+
+-[] Define an instance method, User.prototype.toSafeObject, in the user.js
+-[] const bcrypt = require('bcryptjs');
+
+
+## User Auth Middlewares
+-[x] Create a folder called utils in your backend folder.
+-[x] Inside that folder, add a file named auth.js to store the auth helper functions
+```backend/utils/auth.js
+const jwt = require('jsonwebtoken');
+const { jwtConfig } = require('../config');
+const { User } = require('../db/models');
+
+const { secret, expiresIn } = jwtConfig;
+```
+-[x] setTokenCookie -setting the JWT cookie after a user is logged in or signed up
+-[x] restoreUser - will verify and parse the JWT's payload and search the database for a User with the id in the payload
+-[x]  requireAuth - to add is for requiring a session user to be authenticated before accessing a route.
+
+
+## Phase 4: User Auth Routes
+-[] create a file called session.js in the backend/routes/api
+```// backend/routes/api/session.js
+const express = require('express')
+const router = express.Router();
+
+module.exports = router;
+```
+-[x] create a file called users.js in the backend/routes/api f
+```
+ backend/routes/api/users.js
+const express = require('express')
+const router = express.Router();
+
+module.exports = router;
+
+-[] DEV TOOLS > CONSOLE >
+  -[] if new  "XSRF-TOKEN": is needed, go to DEV TOOLS > application > storage > cookies > XSRF > value
+      pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII
+
+```
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'Demo-lition', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
+
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'demo@user.io', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
+
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'Demo-lition', password: 'Hello World!' })
+}).then(res => res.json()).then(data => console.log(data));
+
+-[x] Once you are satisfied with the test results, comment out test (or remove)
+
+
+## Phase 4: User Auth Routes
+
+Add the following routes to your Express application:
+-[] Login: POST /api/session
+-[] Logout: DELETE /api/session
+-[] Signup: POST /api/users
+-[] Get session user: GET /api/session
+
+  -[x] create a file called session.js in the backend/routes/api
+  -[] Create a file called users.js in the backend/routes/api and export an Express router from this file.
+
+## User Login API Route
+-[x] In the backend/routes/api/session.js file, import the following code at the top of the file and create an Express router
+-[x]  add the POST /api/session route to the router using an asynchronous route handler
+-[x] Test the login route by navigating to the http://localhost:5000/hello/world
+  test route and making a fetch request from the browser's dev tools console.
+```
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'Demo-lition', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
+
+-[x]  to login the demo user with the email next.
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'demo@user.io', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
+
+-[x]  test an invalid user credential and password combination
+```
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'Demo-lition', password: 'Hello World!' })
+}).then(res => res.json()).then(data => console.log(data));
+```
+## User Logout API Route
+-[x] DELETE /api/session logout route will remove the token cookie from the response and return a JSON success message
+```backend/routes/api/session.js
+router.delete(
+  '/',
+  (_req, res) => {
+    res.clearCookie('token');
+    return res.json({ message: 'success' });
+  }
+);
+
+```
+-[x] to logout the session user.
+```
+fetch('/api/session', {
+  method: 'DELETE',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  }
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+## User Signup API Route
+-[]In the backend/routes/api/users.js file, import the following code at the top of the file and create an Express router:
+
+const express = require('express');
+const asyncHandler = require('express-async-handler');
+
+const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { User } = require('../../db/models');
+
+const router = express.Router();
+
+-[] add the POST /api/users route to the router using the asyncHandler function and an asynchronous route handler.
+-[] In the route handler, call the signup static method on the User model.
+```// Sign up
+router.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const { email, password, username } = req.body;
+    const user = await User.signup({ email, username, password });
+
+    await setTokenCookie(res, user);
+
+    return res.json({
+      user,
+    });
+  }),
+);
+
+```
+-[x] to signup a new valid user.
+
+fetch('/api/users', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({
+    email: 'spidey@spider.man',
+    username: 'Spidey',
+    password: 'password'
+  })
+}).then(res => res.json()).then(data => console.log(data));
+
+-[x] to hit the Sequelize model validation errors by testing the following which should give back a Validation error:
+
+fetch('/api/users', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({
+    email: 'spidey@spider.man',
+    username: 'Spidey',
+    password: 'password'
+  })
+}).then(res => res.json()).then(data => console.log(data));
+
+
+-[] Get Session User API Route
+```// Restore session user
+router.get(
+  '/',
+  restoreUser,
+  (req, res) => {
+    const { user } = req;
+    if (user) {
+      return res.json({
+        user: user.toSafeObject()
+      });
+    } else return res.json({});
+  }
+);
+```
+## Phase 5: Validating the Request Body
+-[] In the backend/utils folder, add a file called validation.js.
+-[]  define an Express middleware called handleValidationErrors that will call validationResult
+  from the express-validator package passing in the request.
+```// backend/utils/validation.js
+const { validationResult } = require('express-validator');
+
+// middleware for formatting errors from express-validator middleware
+// (to customize, see express-validator's documentation)
+const handleValidationErrors = (req, _res, next) => {
+  const validationErrors = validationResult(req);
+
+  if (!validationErrors.isEmpty()) {
+    const errors = validationErrors
+      .array()
+      .map((error) => `${error.msg}`);
+
+    const err = Error('Bad request.');
+    err.errors = errors;
+    err.status = 400;
+    err.title = 'Bad request.';
+    next(err);
+  }
+  next();
+};
+
+module.exports = {
+  handleValidationErrors,
+};
+```
+
+
+
+fetch('/api/session', {
+  method: 'DELETE',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  }
+}).then(res => res.json()).then(data => console.log(data));
+-[x] In the backend/routes/api/session.js file,
+  import the check function from express-validator and the handleValidationError
+-[] fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: '', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
+-[]
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({ credential: 'Demo-lition', password: '' })
+}).then(res => res.json()).then(data => console.log(data));
+
+
+## Validating Signup Request Body
+-[] In the backend/routes/api/users.js file,
+  import the check function from express-validator and the handleValidationError
+-[] Make a middleware called validateSignup that will check these keys and validate them
+-[]
+fetch('/api/users', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": "pbLhXrp7-EIieTWtJiATZyiX8oCs9aCkMMII"
+  },
+  body: JSON.stringify({
+    email: 'spidey@spider.man',
+    username: 'Spidey',
+    password: ''
+  })
+}).then(res => res.json()).then(data => console.log(data));
+Completed Validating Signup Request Body

@@ -1,0 +1,228 @@
+
+
+\du list all users
+
+"clean slate"
+npx sequelize db:drop
+npx sequelize db:create
+npx sequelize db:migrate
+npx sequelize db:seed:all;
+
+
+npx sequelize-cli db:seed:undo
+npx sequelize-cli db:migrate:undo:all
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all
+______________________
+
+Step 1: Set-up
+-[x] npm install sequelize
+-[x] npm install sequelize-cli
+- [] npx sequelize-cli init
+-[x] npm install pg
+
+PORT=5000
+DB_USERNAME=react_solo_project_app
+DB_PASSWORD=1StrongPassword!
+DB_DATABASE=react_solo_project
+DB_HOST=localhost
+JWT_SECRET='38b463057b634a23c4048ca1e03be40e7cdb1a322164b1415768ac23ca4da6fb'
+JWT_EXPIRES_IN=604800
+
+-[x] Create a database named "react_solo_project" with the owner "react_solo_project_app".
+-[x] Create a database named "react_solo_project" with the owner "react_solo_project_app"
+
+ - Create your database
+-[] npx sequelize-cli db:create;  // in terminal creates db
+Loaded configuration file "config/config.json".
+Using environment "development".
+Database recipe_box_development created.
+- [] npx sequelize-cli db:drop;   // for practice dropping
+Database recipe_box_development dropped.
+
+- [] npx sequelize-cli db:create; // to recreate to work with
+Database recipe_box_development created
+
+Step 2: User Model
+Generate a User model that has:
+-[] npx sequelize model:generate --name 'User' --attributes "firstName:string,lastName:string,email:string, userName:string"
+
+
+Step 3: Instruction Model
+-[] npx sequelize model:generate --name 'Instruction' --attributes "name:string,level:integer,MealKindId:integer,departmentId:integer"
+-[^] Generate a Instruction model that has
+-[] a name attribute that contains a string up to 50 characters long
+-[] references: {model:'Departments'}*** fK linking PLURal"
+-[] references:{model:'MealKindes'}
+-[] npx sequelize-cli db:migrate
+
+
+Step 6: Enrollment Model
+-[] npx sequelize-cli model:generate --name Enrollment --attributes UserId:integer,InstructionId:integer
+-[] Generate an Enrollment model that has
+-[] a UserId attribute that contains an integer
+-[] a InstructionId attribute that contains an integer
+-[] Update the migration file so that UserId references the People model.
+-[] Update the migration file so that the InstructionId references the Instructions model.
+-[] npx sequelize-cli db:migrate
+
+UserId: {
+        type: Sequelize.INTEGER,
+        references:{model:'People'}
+      },
+InstructionId: {
+        type: Sequelize.INTEGER,
+        references: {model:'Instructions'}
+      }
+
+-[] npx sequelize-cli db:migrate
+
+Step 7: Seeding Data
+Generate seeder files
+-[]npx sequelize-cli seed:generate --name Users
+[] npx sequelize-cli db:seed --seed 20210416222605-People.js
+-[] npx sequelize-cli seed:generate --name MealKindes
+-[] npx sequelize-cli db:seed --name 20210416222905-MealKindes.js
+
+-[] npx sequelize-cli seed:generate --name Departments
+-[] npx sequelize-cli db:seed --name 20210416223052-Departments.js
+-[] npx sequelize-cli seed:generate --name Instructions
+[] npx sequelize-cli db:seed --name 20210416222905-MealKindes.js
+-[]npx sequelize-cli seed:generate --name Enrollments
+[] npx sequelize-cli db:seed --name 20210416223329-Enrollments.js
+
+
+Step 8: Associations
+
+The User model:
+-[] User model's side of having a many-to-many relationship with the Instruction model
+  const columnMapping = {
+      through:'Enrollments', // plural because we are referencing a table name
+      otherKey:'InstructionId',
+      foreignKey: 'UserId'
+    }
+    User.belongsToMany(models.Instruction,columnMapping);
+
+
+The MealKind model:
+-[] MealKind model to have many Instruction models.
+MealKind.hasMany(models.Instruction,{foreignKey:'MealKindId'})
+
+
+The Diet model:
+-[] Diet model to have many Instruction models.
+Diet.hasMany(models.Instruction,{foreignKey:'departmentId'})
+
+
+The Instruction model:
+-[] Instruction model's side of having a many-to-many relationship with the User model.
+-[] Instruction model to belong to a MealKind.
+-[]Instruction model to belong to a Diet.
+    const columnMapping = {
+      through: 'Enrollments',
+      foreignKey: 'InstructionId',
+      otherKey: 'UserId'
+    }
+    Instruction.belongsToMany(models.User, columnMapping)
+    Instruction.belongsTo(models.MealKind, {foreignKey:'MealKindId'})
+    Instruction.belongsTo(models.Diet,{foreignKey:'departmentId'})
+
+
+phase 9 - Units of Measurement data
+- [] npx sequelize-cli model:generate --name MeasurementUnit --attributes name:string
+^^ this will create the migration file, model folder (if doesn't exist) file
+
+-[] in our migration file =>
+-[] name property make non-nullable,
+-[] unique = true
+-[] sequalize.string(20)
+
+Run migration
+-[] npx sequelize-cli db:migrate
+
+Create seed data
+**** when undoing the seeds, also undo migration, because serialized IDs will be off*****
+    -npx sequelize-cli db:seed:undo:all
+    -npx sequelize-cli db:migrate:undo:all
+    -npx sequelize-cli db:migrate
+    -npx sequelize-cli db:seed:all
+********************************************************************
+
+-[] npx sequelize-cli seed:generate --name default-measurement-units
+-[] insert data using bulkInsert()
+-[] insert command npx sequelize-cli db:seed:all
+
+
+phase 10  recipe table model
+
+-[] npx sequelize-cli model:generate --name Recipe --attributes title:string *happens in pj folder
+-[] sequelize.string(200) *happens in pj folder
+-[] name property make non-nullable *happens in pj folder
+-[] npx sequelize-cli db:migrate
+
+Phase 12: The instruction table model
+
+-[] npx sequelize-cli model:generate --name Instruction --attributes specification:text,listOrder:Integer,recipeId:Integer
+-[] in the migration file:
+    -[] columns=notNullable
+    -[] add new Property to recipeId, references
+    references:{model:"recipes"}
+    -[] npx sequelize-cli db:migrate
+
+phase 13: The ingredients model
+-[] npx sequelize-cli model:generate --name Ingredient --attributes amount:decimal,measurementUnitId:Integer,foodStuff:string,recipeId:Integer
+-[] notNull {amount, measurementUnitId, foodStuff, recipeId}
+-[] foodStuff varChar(500)
+-[] amount Decimal(5,2)
+-[] constraints Ingredients references measurementUnitId by the FK
+   references: {model: 'MeasurementUnit'}
+-[] constraints Ingredients references recipeId by the FK
+   references: {model: 'Recipes'}
+-[] npx sequelize-cli db:migrate
+
+-Phase 14: Seed data for all of the tables  **Becautious of sequence**
+ seed 4 tables MeasurementUnit, Recipes, Ingredients, Instructions, (ensure correct order, because ingredients and instructions need measurement units and recipes table)
+-[] npx sequelize-cli seed:generate --name MeasurementUnits
+ -[] npx sequelize-cli seed:generate --name Recipes
+  -[]alter seeder file (blkInstUP, blkInsterDwn, 'TableNames')
+ -[] npx sequelize-cli seed:generate --name Instructions
+  -[] alter seeder file (blkInstUP, blkInsterDwn, 'TableNames')
+ -[] npx sequelize-cli seed:generate --name Ingredients
+    -[] alter seeder file (blkInstUP, blkInsterDwn, 'TableNames')
+
+Phase 15: Updating models with associations "
+hasMany- doens't have FK
+BelongsTo - with FK table
+
+** forming bridge between multiple tables, because we will be using the "includes" later **
+-[] return Recipe.findByPk(id, {
+    include: [
+      { model: Ingredient, include: [
+        { model: MeasurementUnit }
+      ]},
+      { model: Instruction }
+    ]
+  })
+
+
+- [x] open the file models/recipe.js.
+-[x] Recipe.hasMany(models.Instruction, { foreignKey: 'recipeId' });
+-[x] Recipe.hasMany(models.Ingredient, { foreignKey: 'recipeId' })
+ -[x] models/instruction.js,
+ -[x] Instruction.belongsTo(models.Recipe, { foreignKey: 'recipeId' });
+-[x] open models/ingredients.js
+-[x] Ingredients.belongsTo(models.Recipe,{foreignKey: 'recipeId'})
+-[x] open models/measurementunits.js
+-[x] MeasurementUnit.hasMany(models.Ingredient,{foreignKey:'measurementUnitId'}) // is this note the ingreditenId?
+-[x] open models/ingredients.js
+-[] Ingredients.belongsTo(models.MeasurementUnit,{foreignKey:'measurementUnitId'})
+
+phase 16: Updating models with validations
+-[] models/instruction.js
+-[] validate: {
+        notEmpty: true,
+      },
+
+
+Phase 17: Cascade delete for recipes
+-[]  models/recipe.js file.

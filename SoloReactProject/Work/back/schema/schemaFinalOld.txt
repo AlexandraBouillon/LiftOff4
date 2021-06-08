@@ -1,0 +1,139 @@
+npx dotenv sequelize db:drop
+npx dotenv sequelize db:create
+npx dotenv sequelize db:migrate
+npx dotenv sequelize db:seed:all
+
+npx dotenv sequelize-cli db:seed:undo
+npx dotenv sequelize-cli db:migrate:undo:all
+npx dotenv sequelize-cli db:migrate
+npx dotenv sequelize-cli db:seed:all
+
+References:
+
+Models are capitalized singular nouns
+Tables/Database are capitalized plural nouns
+Mirations file , capitalized plural
+model file capitalized singular
+
+-[] Phase 0 - User  model
+    -[3] associate('User'
+    User.hasMany(models.Project, { foreignKey: 'userId' });
+    -[x] associate('User'
+    User.hasMany(models.Comment, { foreignKey: 'userId' });
+
+-[] Phase 1 - MeasurementUnit  model
+    -[x] npx sequelize-cli model:generate --name MeasurementUnit --attributes measurementUnitName:string
+    -[x] notNullable
+    -[x] associate('MeasurementUnit'
+    MeasurementUnit.belongsTo(models.Supply, { foreignKey: 'measurementUnitId' });
+
+-[x] Phase 2: The Project  model
+    -[x] npx sequelize-cli model:generate --name Project --attributes projectName:string,userId:Integer
+    -[x] notNullable
+    -[x] userId, references `users` table
+        references: {model:"Users"}
+    -[x] npx dotenv sequelize-cli db:migrate
+    -[x] associate('Project'
+        Project.hasMany(models.Step, { foreignKey: 'projectId' });
+    -[x] associate('Project'
+        Project.hasMany(models.Comment, { foreignKey: 'projectId' });
+
+        Project.hasMany(models.Image, { foreignKey: 'projectId' });
+        Project.hasMany(models.Supply, { foreignKey: 'projectId' });
+
+    -[x] associate('Project'
+        Project.belongsTo(models.User, { foreignKey: 'userId' });
+    == 20210522205028-create-user: migrating =======
+    == 20210522205028-create-user: migrated (0.043s)
+
+    == 20210525170853-create-measurement-unit: migrating =======
+    == 20210525170853-create-measurement-unit: migrated (0.044s)
+
+    == 20210525171115-create-instruction: migrating =======
+    == 20210525171115-create-instruction: migrated (0.018s)
+
+-[] Phase 3: Step model
+    -[x] npx sequelize-cli model:generate --name Step --attributes stepContent:text,projectId:Integer,stepNumber:Integer
+    -[x] notNullable
+    -[x] projectId, references `Projects` table
+        references:{model:"Projects"}
+    -[x] associate('Step'
+    Step.belongsTo(models.Project, { foreignKey: 'projectId' });
+
+
+-[] Phase 4: Image model
+    -[x] npx sequelize-cli model:generate --name Image --attributes url:string,projectId:Integer
+    -[x] notNullable
+    -[x] projectId, references `Projects` table
+        references:{model:"Projects"}
+
+    - projectId references Project Table
+    - Many too many relationship with Step table through Image Step table
+
+-[] Phase 5: The Supplies model
+    -[x] npx sequelize-cli model:generate --name Supply --attributes supplyName:string,quantity:decimal,measurementUnitId:Integer,projectId:Integer
+    -[x] notNull
+    -[x] quantity Decimal(5,2)
+    -[x] associate('Supply'
+    Supply.belongsTo(models.Project, { foreignKey: 'projectId' });
+    Supply.hasMany(models.MeasurementUnit, { foreignKey: 'measurementUnitId' });
+    -[] projectId: {
+        type: Sequelize.INTEGER,
+        references: { model: 'Projects'}
+
+                    -[-] measurementUnitId references `MeasurementUnits` table
+                        references: { model: 'MeasurementUnits' }
+                    -[-] stepId references `Steps` table
+                        references: { model: 'Steps'}
+
+-[] Phase 6: Comment model
+    -[x] npx sequelize-cli model:generate --name Comment --attributes content:text,projectId:Integer,userId:Integer
+    -[x] notNullable
+    -[x] userId, references `users` table
+        references:{model:"Users"}
+    -[x] projectId, references `Projects` table
+        references:{model:"Projects"}
+    -[x] associate('Comment'
+        Comment.belongsTo(models.Project, { foreignKey: 'projectId' });
+    -[removed] associate('Comment'
+        Comment.belongsTo(models.User, { foreignKey: 'userId' });
+
+
+-[] Phase 7: ImageStep model
+    -[x] npx sequelize-cli model:generate --name ImageStep --attributes  url:string,stepId:Integer,imageId:Integer
+    -[] notNullable
+    -[x] userId, references `users` table
+        references:{model:"Users"}
+
+-[x] npx sequelize-cli db:migrate
+-[x] npx sequelize-cli seed:generate --name default-measurement-units
+-[x] npx dotenv sequelize db:seed:all
+
+
+npx sequelize-cli seed:generate --name default-measurement-units
+
+
+const columnMapping = {
+    through: 'ImageStep',
+    otherKey: 'imageId',
+    foreignKey: 'stepId'
+  }
+  Step.belongsToMany(models.Image, columnMapping);
+
+Image.associate = function(models) {
+
+    // associations can be defined here
+    const columnMapping = {
+    through: 'ImageStep',
+    otherKey: 'stepId',
+    foreignKey: 'imageId'
+  }
+  Image.belongsToMany(models.Step, columnMapping);
+
+
+
+########## Important Message  ##########
+-[] If we have a Image which is related to a step, then  we have to update in three locations:
+    - the Step Table needs to get the Step number
+    - store the Image in the Image table
+    - get the Id of the Step and the imageId and store it in the Image Step

@@ -1,0 +1,31 @@
+Users(log in , instructractable, ratings)
+Instructables
+
+
+Features:
+- User Login / User Signup
+- User Details/profile
+- Instructable
+- comments/likes/ blog post
+- home page (features like ,most recent, popular)
+
+
+Bonus:(option but a plus)
+- other users can follow
+- allow users to add new ingredients
+- allow user to add multiple paragraphs
+
+Schema:
+    - User table: id, username, email, hashed password (okay to make efore Sunday )
+    - Instructables: id, name, instructions, stepId,
+    - Step: id name, description, ingredientId,
+    - Ingredients: id, name, quantity, measurementUnitId
+    - measurementUnit: id name, description, ingredientId
+    - Comments: id, user_id, instructable_id, comment
+    - Like : id, user_id, instructable_id
+
+People                      Users
+Enrollments                 Enrollments
+Campuses                    MealKind(BreakFast, Dinner, Dessert, Beverage)
+Courses                     Instructions
+Departments                 Diet (Keto, Vegan, )

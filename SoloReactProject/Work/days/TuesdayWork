@@ -1,0 +1,23 @@
+work for today
+
+-[x] create user table
+-[x] MeasurementUnit table
+-[x] Instructions table
+-[x] Steps table
+-[x] Image Instructions table
+-[x] Ingredients table
+-[x] Comments table
+-[x] Image Steps table
+-[x] seeded: MeasurementUnits
+-[] updated User: firstName, lastName
+
+-[x] associations &  refereneces
+-[x]instruction & step backend routes & tested
+-[] store
+-[] component:
+    Instruction,
+    Step
+
+
+## questions
+-[] what are these potential security vulnerabilities in github about?

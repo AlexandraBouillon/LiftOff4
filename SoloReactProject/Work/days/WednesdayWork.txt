@@ -1,0 +1,101 @@
+
+-[x] create aws account, use dr card, cancel before one year, use caution
+-[x]  S3buckets
+-[x] create internal folders, save a few images, sample
+      -[x] try to get url from there
+s3://abproject1/folderone/
+      https://abproject1.s3-us-west-1.amazonaws.com/folderone/2019-10-29+21.42.55.png
+      https://abproject1.s3-us-west-1.amazonaws.com/folderone/2019-10-29+21.43.33.png
+s3://abproject1/foldertwo/
+      https://abproject1.s3-us-west-1.amazonaws.com/foldertwo/2019-08-01+17.06.17.jpg
+      https://abproject1.s3-us-west-1.amazonaws.com/foldertwo/2019-10-29+21.44.54.png
+
+-[x] create seeders from as much
+        npx dotenv sequelize db:drop
+        npx dotenv sequelize db:create
+        npx dotenv sequelize db:migrate
+        npx dotenv sequelize db:seed:all
+
+        npx dotenv sequelize-cli db:seed:undo
+        npx dotenv sequelize-cli db:migrate:undo:all
+        npx dotenv sequelize-cli db:migrate
+        npx dotenv sequelize-cli db:seed:all
+-[a,b] npx sequelize-cli seed:generate --name default-project-data.js
+
+      {projectName: 'Making Bread',userId: 2 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Naan',userId: 3 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Pasta',userId: 1 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Ice Cream',userId: 2 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Saag Paneer',userId: 3 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Tomato Sauce',userId: 1,createdAt: new Date(), updatedAt: new Date() },
+      {projectName: 'Making Deviled Eggs',userId: 2 ,createdAt: new Date(), updatedAt: new Date()},
+      {projectName: 'Making Aloo Gobi',userId: 3 ,createdAt: new Date(), updatedAt: new Date()},
+
+-[a] npx sequelize-cli seed:generate --name default-step-data.js
+{stepContent: 'Clean Work Area',projectId: 1 ,stepNumber:1 , createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Gather Supplies',projectId: 1 ,stepNumber: 2, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Assemble',projectId: 1 ,stepNumber: 3, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Clean Work Area',projectId: 2 ,stepNumber: 1, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Gather Supplies',projectId: 2 ,stepNumber: 2, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Assemble',projectId: 2 ,stepNumber: 3, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Clean Work Area',projectId: 3 ,stepNumber: 1, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Gather Supplies',projectId: 3 ,stepNumber: 3, createdAt: new Date(), updatedAt: new Date()},
+{stepContent: 'Assemble',projectId: 3 ,stepNumber: 3, createdAt: new Date(), updatedAt: new Date()},
+
+-[a] npx sequelize-cli seed:generate --name default-supply-data.js
+
+{supplyName: 'Clean Work Area', quantity: 1, measurementUnitId: 1 ,projectId:1 , createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Gather Supplies', quantity: 1, measurementUnitId: 1 ,projectId: 2, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Assemble', quantity: 1, measurementUnitId: 1 ,projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Clean Work Area', quantity: 1, measurementUnitId: 2 ,projectId: 1, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Gather Supplies', quantity: 1, measurementUnitId: 2 ,projectId: 2, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Assemble', quantity: 1, measurementUnitId: 2 ,projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Clean Work Area', quantity: 1, measurementUnitId: 3 ,projectId: 1, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Gather Supplies', quantity: 1, measurementUnitId: 3 ,projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+{supplyName: 'Assemble', quantity: 1, measurementUnitId: 3 ,projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+
+
+-[x] npx sequelize-cli seed:generate --name default-image-data.js
+
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Pizza.png', projectId: 1, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Ba%CC%81nhMi%CC%80.png', projectId: 2, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Naan.png', projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Gnocci.png', projectId: 1, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Pho%CC%9B%CC%89.png', projectId: 2, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/SaagPaneer.png', projectId: 3, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/TomatoSauce.png', projectId: 1, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/SpringRoll.png', projectId: 2, createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/AlooGobi.png', projectId: 3,  createdAt: new Date(), updatedAt: new Date()},
+
+
+-[x] npx sequelize-cli seed:generate --name default-comment-data.js
+
+{content: 'Looks Great', projectId: 1, userId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Did this take long?', projectId: 2, userId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Nice Steps!', projectId: 3, userId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Smells Delicious', projectId: 1, userId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Fantastic photo', projectId: 2, userId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Family loved it!', projectId: 3, userId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Can not wait to try!', projectId: 1, userId: 3 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Incredible!', projectId: 2, userId: 3 , createdAt: new Date(), updatedAt: new Date()},
+{content: 'Wow', projectId: 3, userId: 3 , createdAt: new Date(), updatedAt: new Date()},
+
+
+-[x] npx sequelize-cli seed:generate --name default-image-step-data
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/CleanWorkArea.png', stepId: 1, imageId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/GatherSupplies.png', stepId: 2, imageId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Drool.png', stepId: 3, imageId: 1 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/CleanWorkArea.png', stepId: 1, imageId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/GatherSupplies.png', stepId: 2, imageId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Drool.png, stepId: 3, imageId: 2 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/CleanWorkArea.png', stepId: 1, imageId: 3 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/GatherSupplies.png', stepId: 2, imageId: 3 , createdAt: new Date(), updatedAt: new Date()},
+{url: 'https://abproject1.s3-us-west-1.amazonaws.com/folderone/AppArt/Drool.png', stepId: 3, imageId: 3 , createdAt: new Date(), updatedAt: new Date()},
+
+
+## Doubts
+-[x] For Comments is the user id for the user of the project or the user of the comment?
+
+
+
+-[] [] get the store working , store it in the store and build the UI

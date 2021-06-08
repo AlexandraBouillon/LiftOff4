@@ -1,0 +1,57 @@
+-[x] AWS
+```
+s3://abproject1/folderone/
+      https://abproject1.s3-us-west-1.amazonaws.com/folderone/2019-10-29+21.42.55.png
+      https://abproject1.s3-us-west-1.amazonaws.com/folderone/2019-10-29+21.43.33.png
+s3://abproject1/foldertwo/
+      https://abproject1.s3-us-west-1.amazonaws.com/foldertwo/2019-08-01+17.06.17.jpg
+      https://abproject1.s3-us-west-1.amazonaws.com/foldertwo/2019-10-29+21.44.54.png
+```
+
+
+    - create unique images for each project
+    -public access for the images
+USER: AMADMINABPROJECT5312021
+PW: IAMADMINABPROJECT5312021PW!
+
+ AccessKey : AKIAWB5ZWA7VKH6V27IM
+Secret ID: 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
+Success
+AccessKey : AKIAWB5ZWA7VMQLDW4OB
+Secret ID: 9li9VEkqcoG388V7yvcBAvAQnTCRFeggz4a2ynB
+
+
+You successfully created the users shown below. You can view and download user security credentials. You can also email users instructions for signing in to the AWS Management Console. This is the last time these credentials will be available to download. However, you can create new credentials at any time.
+
+Users with AWS Management Console access can sign-in at: https://416464373738.signin.aws.amazon.com/console
+
+
+-[x] add in defaultValue: Sequelize.fn('now'), to all createdAt & updatedAt
+-[x] add unique step seed data to all createdAt & updatedAt
+    -[x] all necessary sequelize dance
+        npx dotenv sequelize db:drop
+        npx dotenv sequelize db:create
+        npx dotenv sequelize db:migrate
+        npx dotenv sequelize db:seed:all
+
+-[] Research cascade delete
+    https://sequelize.org/v5/manual/hooks.html#associations
+    https://thorben-janssen.com/avoid-cascadetype-delete-many-assocations/
+
+
+am I deleting the project when the step still exists?
+-[] delete imageSteps
+    -[] Create a one to many between Projects and steps
+    -[] Create  a one to many for Projects to images
+
+
+
+
+
+
+
+
+___________
+access ID AKIAWB5ZWA7VMQLDW4OB
+
+new access key /9li9VEkqcoG388V7yvcBAvAQnTCRFeggz4a2ynB

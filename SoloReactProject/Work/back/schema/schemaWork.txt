@@ -1,0 +1,64 @@
+💭:
+-how will a user upload pictures
+
+_____________________________________
+
+Users(log in , instructractable, ratings)
+Instructables
+
+
+Features:
+- User Login / User Signup
+- create a instructable
+- comments/likes/ blog post
+- User Details/profile
+- home page (features like ,most recent, popular)
+
+
+Bonus:(option but a plus)
+- other users can follow
+- allow users to add new ingredients
+- allow user to add multiple paragraphs
+
+Schema:
+    - User table- id, firstName*, lastName*, email, userName, hashedPassword, profilePicUrl
+    - Instruction- id, instructionName, userId
+    - Step- id, stepContent:text, instructionId, stepNumber
+    - Ingredient- id, ingredientName:text, quantity, unitId,  instructionId:integer
+    - MeasurementUnit- id, measurementUnitName
+    - Comment- id, user_id, instructionId, comment:varchar
+    - Image- id, url:string, instructionId:integer, stepNumber:integer
+
+## `Image Steps`
+
+| column name | data type | details               |
+| ----------- | --------- | --------------------- |
+| id          | integer   | not null, primary key |
+| stepId      | integer   | foreign key           |
+| imageId     | integer   | foreign key           |
+| created_at  | datetime  | not null              |
+| updated-at  | datetime  | not null              |
+
+
+
+-[] focuse on the user, login ,
+    logins, signups are working
+
+
+recipe table
+comments
+
+
+work for Tuesday
+
+-[x] create user table
+-[x] MeasurementUnit table
+-[x] Instructions table
+-[x] Steps table
+-[x] Image Instructions table
+-[x] Ingredients table
+-[x] Comments table
+-[x] Image Steps table
+
+-[x] during the migrations double check the refereneces
+-[x] routes

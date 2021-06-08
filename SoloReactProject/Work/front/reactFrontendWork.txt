@@ -1,0 +1,180 @@
+## Phase 0: Set Up
+-[*] Method 2: Use Redux template
+    npx create-react-app . --template @appacademy/react-redux-v17 --use-npm
+## Test the Redux Store setup
+-[x] starting your React frontend server (run npm start in your frontend folder) and navigate to http://localhost:3000.
+-[x] see if your Redux dev tools was successfully connected
+-[x]  if there is a store on the window in your browser's dev tools console
+-[x] dispatch an action from your browser's dev tools console
+    window.store.dispatch({ type: 'hello' });
+
+-[2] npm install
+-[2] npm install redux-logger -D
+-[2] npm install js-cookie --save
+
+##  Wrapping fetch requests with CSRF
+
+-[x] Add a "proxy" key with the value of http://localhost:5000
+   do a fetch request in the React frontend like fetch('/api/csrf/restore),
+    then the GET /api/csrf/restore request will be made to the backend server instead of the frontend server
+-[x] Add a csrf.js file in the frontend/src/store folder.
+-[x] Import Cookies from js-cookie that will be used to extract the XSRF-TOKEN cookie value.
+-[x] Define an async function called csrfFetch that will take in url parameter and an options parameter that defaults to an empty object.
+```// frontend/src/store/csrf.js
+import Cookies from 'js-cookie';
+
+export async function csrfFetch(url, options = {}) {
+  // set options.method to 'GET' if there is no method
+  options.method = options.method || 'GET';
+  // set options.headers to an empty object if there is no headers
+  options.headers = options.headers || {};
+
+  // if the options.method is not 'GET', then set the "Content-Type" header to
+    // "application/json", and set the "XSRF-TOKEN" header to the value of the
+    // "XSRF-TOKEN" cookie
+  if (options.method.toUpperCase() !== 'GET') {
+    options.headers['Content-Type'] =
+      options.headers['Content-Type'] || 'application/json';
+    options.headers['XSRF-Token'] = Cookies.get('XSRF-TOKEN');
+  }
+  // call the default window's fetch with the url and the options passed in
+  const res = await window.fetch(url, options);
+
+  // if the response status code is 400 or above, then throw an error with the
+    // error being the response
+  if (res.status >= 400) throw res;
+
+  // if the response status code is under 400, then return the response to the
+    // next promise chain
+  return res;
+}
+```
+##  Restore the XSRF-TOKEN Cookie
+
+-[]
+```
+// backend/routes/index.js
+// ... after `router.use('/api', apiRouter);`
+
+// Static routes
+// Serve React build files in production
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  // Serve the frontend's index.html file at the root route
+  router.get('/', (req, res) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    return res.sendFile(
+      path.resolve(__dirname, '../../frontend', 'build', 'index.html')
+    );
+  });
+
+  // Serve the static assets in the frontend's build folder
+  router.use(express.static(path.resolve("../frontend/build")));
+
+  // Serve the frontend's index.html file at all other routes NOT starting with /api
+  router.get(/^(?!\/?api).*/, (req, res) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    return res.sendFile(
+      path.resolve(__dirname, '../../frontend', 'build', 'index.html')
+    );
+  });
+}
+
+```
+-[x] Define and export a function called restoreCSRF in the frontend/src/store/csrf.js
+```// frontend/src/store/csrf.js
+// ...
+
+// call this to get the "XSRF-TOKEN" cookie, should only be used in development
+export function restoreCSRF() {
+  return csrfFetch('/api/csrf/restore');
+}```
+
+-[] In the frontend entry file (frontend/src/index.js), call the restoreCSRF function when in development before defining the Root functional component.
+-[]  attach the custom csrfFetch function onto the window when in development as window.csrfFetch.
+```
+import { restoreCSRF, csrfFetch } from './store/csrf';
+```
+
+-[] ask Sri why this didn't work
+```
+// import { restoreCSRF, csrfFetch } from './csrf'
+// const store = configureStore();
+
+// if (process.env.NODE_ENV !== 'production') {
+//   restoreCSRF();
+
+//   window.csrfFetch = csrfFetch;
+//   window.store = store;
+// }
+```
+
+
+## Phase 1: Login Form Page
+
+-[] add the Redux store actions and reducers that you need for this feature. You will use the POST /api/session backend route to login in a user
+-[]  add the session user's information to the frontend Redux store.
+-[] add a session reducer that will hold the current session user's information.
+-[] Import all the actions from the session.js file into the frontend application entry file, frontend/src/index.js
+-[] attach the actions to the window at the key of sessionActions
+```// frontend/src/index.js
+// ... other imports
+import * as sessionActions from './store/session';
+
+const store = configureStore();
+
+if (process.env.NODE_ENV !== 'production') {
+  restoreCSRF();
+
+  window.csrfFetch = csrfFetch;
+  window.store = store;
+  window.sessionActions = sessionActions;
+}
+```
+
+
+## LoginFormPage Component
+-[x] Create a components folder in the frontend/src folder.
+-[x] Make a folder called LoginFormPage nested in the new components folder which will hold all the files for the login form.
+-[x] Add an index.js file in the LoginFormPage.
+-[x] add a React functional component named LoginFormPage.
+-[x] Render a form with a controlled input for the user login credential (username or email) and a controlled input for the user password.
+
+
+##  Restore the Session User
+-[] Add a thunk action in frontend/src/store/session.js
+
+## Phase 2: Signup Form Page
+-[] add a signup thunk action that will hit the signup backend route
+    with username, email, and password inputs.
+
+  ## SignupFormPage Component
+-[] Create a folder in the components directory for your signup page components.
+-[] Add an index.js and create a functional component named SignupFormPage.
+-[] Render a form with controlled inputs for the new user's username, email, and password, and confirm password fields.
+
+
+code to be save from LoginFormModal: "Modal Form"
+```
+import React, { useState } from 'react';
+import { Modal } from '../../context/Modal';
+import LoginForm from './LoginForm';
+
+function LoginFormModal() {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setShowModal(true)}>Log In</button>
+      {showModal && (
+        <Modal onClose={() => setShowModal(false)}>
+          <LoginForm />
+        </Modal>
+      )}
+    </>
+  );
+}
+
+export default LoginFormModal;
+
+```

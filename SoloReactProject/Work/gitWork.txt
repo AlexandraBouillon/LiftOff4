@@ -1,0 +1,40 @@
+## GIT COMMANDS used
+Resest to a certain git history
+-[x] git log
+-[x] git reset --mixed 71a789aa0a28ca966662b591705dfb30ed703345
+Deletes git folder (must start a new project)
+-[x] rm -rf .git
+
+| ---------------------------------------------- |
+| 0.  git checkout -b abBranch                   | creates and goes to that branch
+| 0a. git branch                                  |
+| 0b. git checkout    abBranch                    |
+| 1.  git status                                  |
+| 2.  git add .                                   |
+| 3.  git commit -m ' updated routes for sign up' |
+| 4.  git branch                                  |
+| 5.  git checkout main                           |
+| 6.  git pull                                    |
+| 7.  git checkout abBranch                       |
+| 8.  git merge main                              |
+| 9.  git branch                                  |
+| 10. git checkout main                          |
+| 11. git merge abBranch                         |
+| 12. git push                                   |
+| ---------------------------------------------- |
+| ---Workflow while on seperateBranchFormMain--- |
+| --git add .----------------------------------- |
+| --git commit -m ''---------------------------- |
+| --git push origin <NAMEOFBRANCH>-------------- |
+| ---Ready to add work to main?----------------- |
+| --Go To GITHUB-------------------------------- |
+| ---MAKE A PULL REQUEST------------------------ |
+| ---Review AND MERGE--------------------------- |
+| ---------------------------------------------- |
+
+
+
+
+
+
+############################

@@ -1,0 +1,128 @@
+npx dotenv sequelize db:drop
+npx dotenv sequelize db:create
+npx dotenv sequelize db:migrate
+npx dotenv sequelize db:seed:all
+
+npx dotenv sequelize-cli db:seed:undo
+npx dotenv sequelize-cli db:migrate:undo:all
+npx dotenv sequelize-cli db:migrate
+npx dotenv sequelize-cli db:seed:all
+
+References:
+
+Models are capitalized singular nouns
+Tables/Database are capitalized plural nouns
+Mirations file , capitalized plural
+model file capitalized singular
+
+-[4] Phase 0 - User  model
+npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string,profileImage:string
+
+profileImage: {
+        type: Sequelize.STRING(256),
+        allowNull: true,
+      },
+    -[x] associate('User'
+    User.hasMany(models.Project, { foreignKey: 'userId' });
+    -[x] associate('User'
+    User.hasMany(models.Comment, { foreignKey: 'userId' });
+
+-[4] Phase 1 - MeasurementUnit  model
+    -[x] npx sequelize-cli model:generate --name MeasurementUnit --attributes measurementUnitName:string
+    -[x] notNullable
+    -[x] associate('MeasurementUnit'
+    MeasurementUnit.belongsTo(models.Supply, { foreignKey: 'measurementUnitId' });
+
+-[4] Phase 2: The Project  model
+    -[x] npx sequelize-cli model:generate --name Project --attributes projectName:string,userId:Integer,url:string
+    -[x] notNullable
+    -[x] userId, references `users` table
+        references: {model:"Users"}
+    -[x] npx dotenv sequelize-cli db:migrate
+    -[x] associate('Project'
+        Project.hasMany(models.Step, { foreignKey: 'projectId' });
+        Project.hasMany(models.Comment, { foreignKey: 'projectId' });
+        Project.hasMany(models.Supply, { foreignKey: 'projectId' });
+        Project.belongsTo(models.User, { foreignKey: 'userId' });
+
+
+-[4] Phase 3: Step model
+    -[x] npx sequelize-cli model:generate --name Step --attributes stepContent:text,projectId:Integer,stepNumber:Integer
+    -[x] notNullable
+    -[x] projectId, references `Projects` table
+        references:{model:"Projects"}
+    -[x] associate('Step'
+    Step.belongsTo(models.Project, { foreignKey: 'projectId' });
+
+-[4] Phase 4: StepImage model
+    -[x] npx sequelize-cli model:generate --name StepImage --attributes  url:string,stepId:Integer
+    -[x] notNullable
+    -[x] stepId, references `Steps` table
+        references:{model:"Steps"}
+
+-[x] npx sequelize-cli db:migrate
+StepImage.belongsTo(models.Step,{foreignKey:"stepId"});
+
+
+-[] Phase 5: The Supplies model
+    -[x] npx sequelize-cli model:generate --name Supply --attributes supplyName:string,quantity:decimal,measurementUnitId:Integer,projectId:Integer
+    -[x] notNull
+    -[x] quantity Decimal(5,2)
+    -[x] associate('Supply'
+    Supply.belongsTo(models.Project, { foreignKey: 'projectId' });
+    Supply.hasMany(models.MeasurementUnit, { foreignKey: 'measurementUnitId' });
+    -[x] projectId: {
+        type: Sequelize.INTEGER,
+        references: { model: 'Projects'}
+    -[x] measurementUnitId references `MeasurementUnits` table
+        references: { model: 'MeasurementUnits' }
+
+                    -[-] stepId references `Steps` table
+                        references: { model: 'Steps'}
+
+-[4] Phase 6: Comment model
+    -[x] npx sequelize-cli model:generate --name Comment --attributes content:text,projectId:Integer,userId:Integer
+    -[x] notNullable
+    -[x] userId, references `users` table
+        references:{model:"Users"}
+    -[x] projectId, references `Projects` table
+        references:{model:"Projects"}
+    -[x] associate('Comment'
+        Comment.belongsTo(models.Project, { foreignKey: 'projectId' });
+    -[removed] associate('Comment'
+        Comment.belongsTo(models.User, { foreignKey: 'userId' });
+
+
+-[x] defaultValue: Sequelize.fn('now')
+-[x] npx sequelize-cli seed:generate --name default-measurement-units
+-[x] npx dotenv sequelize db:seed:all
+
+-[4] npx sequelize-cli seed:generate --name default-measurement-units
+-[4] npx sequelize-cli seed:generate --name default-project-data
+-[4] npx sequelize-cli seed:generate --name default-step-data
+-[4] npx sequelize-cli seed:generate --name default-supply-data
+-[4] npx sequelize-cli seed:generate --name default-comment-data
+-[4] npx sequelize-cli seed:generate --name default-step-image-data
+
+
+
+
+
+
+########## Important Message  ##########
+-[] If we have a Image which is related to a step, then  we have to update in three locations:
+    - the Step Table needs to get the Step number
+    - store the Image in the Image table
+    - get the Id of the Step and the imageId and store it in the Image Step
+
+
+
+
+fetch('/api/session', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json",
+    "XSRF-TOKEN": `HWbKLbC8-qe0v5h7_84aremxUtr2GicVLrz8`
+  },
+  body: JSON.stringify({ credential: 'demo@user.io', password: 'password' })
+}).then(res => res.json()).then(data => console.log(data));
